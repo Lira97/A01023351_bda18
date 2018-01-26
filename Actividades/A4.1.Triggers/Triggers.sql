@@ -1,0 +1,14 @@
+CREATE TRIGGER Salario AFTER UPDATE OF SALARY ON
+ EMPLOYEE REFERENCING OLD AS OLD_EMP NEW AS 
+ NEW_EMP FOR EACH ROW MODE DB2SQL WHEN (NEW_EMP.SALARY > (OLD_EMP.SALARY * 1.3))
+ BEGIN ATOMIC SIGNAL SQLSTATE ‘75001’ (‘ERROR’);END
+
+CREATE TRIGGER inventario AFTER INSERT ON Ventas 
+REFERENCING NEW AS NEW_value FOR EACH ROW MODE DB2SQL
+ WHEN (NEW_value.cantidad  > (select QUANTITY from inventory where pid like NEW_value.ID)) 
+ BEGIN ATOMIC SIGNAL SQLSTATE '75001'('error');end 
+
+CREATE TRIGGER Estado after UPDATE of ID on Ventas 
+referencing new as new_value for each row mode db2sql
+ when (new_value.estado = 1) 
+BEGIN ATOMIC UPDATE INVENTORY SET QUANTITY = QUANTITY - new_value.cantidad; end
